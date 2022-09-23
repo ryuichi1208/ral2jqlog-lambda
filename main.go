@@ -21,7 +21,7 @@ type options struct {
 	DATE       string `long:"date" description:"date"`
 }
 
-var DST_BUCKET, SRC_BUCKET, DATE, FILE string
+var DST_BUCKET, SRC_BUCKET, FILE string
 
 func init() {
 	var opts options
@@ -56,6 +56,8 @@ func init() {
 		fmt.Println("[ERROR] SET the environment variable AWS_REGION")
 		os.Exit(1)
 	}
+
+	FILE = opts.FILE
 }
 
 type Request struct {
@@ -103,14 +105,11 @@ func Do(file string) {
 		os.Exit(1)
 	}
 
-	objname := ""
-	fp, err := s3.GetObject(sess, SRC_BUCKET, tmpDir, objname, ctx)
+	fp, err := s3.GetObject(sess, SRC_BUCKET, tmpDir, file, ctx)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
-
-	os.Exit(1)
 
 	s3.ReadGzip(fp)
 	s3.PutObject(sess, DST_BUCKET, fp.Name())
